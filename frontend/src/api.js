@@ -11,9 +11,13 @@ let USE_MOCK_FALLBACK = true; // Set to true to force mock data, or false to use
 // Check if backend is available on startup, if yes, toggle mock off
 fetch('/api/users/skills/list')
   .then(res => {
-    if (res.status === 200) {
+    const contentType = res.headers.get('content-type');
+    if (res.status === 200 && contentType && contentType.includes('application/json')) {
       console.log("Connected to Spring Boot REST backend successfully. Disabling mock fallback.");
       USE_MOCK_FALLBACK = false;
+    } else {
+      console.log("Backend check returned non-JSON. Keeping mock fallback active.");
+      USE_MOCK_FALLBACK = true;
     }
   })
   .catch(() => {
