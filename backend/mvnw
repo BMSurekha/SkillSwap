@@ -1,0 +1,16 @@
+#!/bin/sh
+MVN_VERSION="3.9.6"
+MVN_DIR="$(dirname "$0")/.mvn/apache-maven-$MVN_VERSION"
+MVN_ZIP="$(dirname "$0")/.mvn/maven.zip"
+
+if [ ! -f "$MVN_DIR/bin/mvn" ]; then
+    echo "Downloading Maven $MVN_VERSION..."
+    mkdir -p "$(dirname "$0")/.mvn"
+    curl -sL "https://archive.apache.org/dist/maven/maven-3/$MVN_VERSION/binaries/apache-maven-$MVN_VERSION-bin.zip" -o "$MVN_ZIP"
+    echo "Extracting Maven..."
+    unzip -q "$MVN_ZIP" -d "$(dirname "$0")/.mvn"
+    rm "$MVN_ZIP"
+    chmod +x "$MVN_DIR/bin/mvn"
+fi
+
+exec "$MVN_DIR/bin/mvn" "$@"
