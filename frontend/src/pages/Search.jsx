@@ -9,10 +9,12 @@ export default function Search() {
   const [location, setLocation] = useState('');
   const [categories, setCategories] = useState([]);
   const [results, setResults] = useState([]);
+  const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadCategories();
+    loadRequests();
     handleSearch();
   }, []);
 
@@ -20,6 +22,15 @@ export default function Search() {
     try {
       const list = await api.lists.categories();
       setCategories(list);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const loadRequests = async () => {
+    try {
+      const list = await api.requests.get();
+      setRequests(list);
     } catch (e) {
       console.error(e);
     }
@@ -42,9 +53,21 @@ export default function Search() {
     try {
       await api.requests.create(userId);
       alert("Exchange proposal request sent successfully!");
+      loadRequests();
     } catch (err) {
       alert("Error sending request: " + err.message);
     }
+  };
+
+  const getConnectionStatus = (targetUserId) => {
+    const user = JSON.parse(localStorage.getItem('skillswap_user'));
+    if (!user) return 'NONE';
+    const req = requests.find(q => 
+      (q.senderId === user.id && q.receiverId === targetUserId) ||
+      (q.senderId === targetUserId && q.receiverId === user.id)
+    );
+    if (!req) return 'NONE';
+    return req.status; // 'PENDING', 'ACCEPTED', 'REJECTED', 'COMPLETED'
   };
 
   return (
@@ -159,9 +182,28 @@ export default function Search() {
                   <Link to={`/chat?partnerId=${r.id}`} className="btn btn-secondary" style={{ flexGrow: 1, padding: '0.5rem 0.75rem', fontSize: '0.8rem' }}>
                     <MessageSquare size={14} /> Message
                   </Link>
-                  <button onClick={() => handleConnect(r.id)} className="btn btn-primary" style={{ flexGrow: 1, padding: '0.5rem 0.75rem', fontSize: '0.8rem' }}>
-                    <Plus size={14} /> Connect
-                  </button>
+                  {(() => {
+                    const status = getConnectionStatus(r.id);
+                    if (status === 'PENDING') {
+                      return (
+                        <button className="btn btn-secondary" style={{ flexGrow: 1, padding: '0.5rem 0.75rem', fontSize: '0.8rem' }} disabled>
+                          Requested
+                        </button>
+                      );
+                    }
+                    if (status === 'ACCEPTED') {
+                      return (
+                        <button className="btn btn-success" style={{ flexGrow: 1, padding: '0.5rem 0.75rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }} disabled>
+                          ✓ Connected
+                        </button>
+                      );
+                    }
+                    return (
+                      <button onClick={() => handleConnect(r.id)} className="btn btn-primary" style={{ flexGrow: 1, padding: '0.5rem 0.75rem', fontSize: '0.8rem' }}>
+                        <Plus size={14} /> Connect
+                      </button>
+                    );
+                  })()}
                 </div>
               </div>
             ))}

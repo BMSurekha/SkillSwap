@@ -17,6 +17,7 @@ export default function Dashboard() {
   const { user, refreshProfile } = useAuth();
   const [matches, setMatches] = useState([]);
   const [requests, setRequests] = useState([]);
+  const [allRequests, setAllRequests] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -33,6 +34,7 @@ export default function Dashboard() {
       const sessData = await api.sessions.getUpcoming();
       
       setMatches(matchData.slice(0, 3)); // show top 3 matches
+      setAllRequests(reqData);
       setRequests(reqData.filter(r => r.receiverId === user.id && r.status === 'PENDING'));
       setSessions(sessData.slice(0, 3));
     } catch (e) {
@@ -40,6 +42,15 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getConnectionStatus = (targetUserId) => {
+    const req = allRequests.find(q => 
+      (q.senderId === user.id && q.receiverId === targetUserId) ||
+      (q.senderId === targetUserId && q.receiverId === user.id)
+    );
+    if (!req) return 'NONE';
+    return req.status; // 'PENDING', 'ACCEPTED', 'REJECTED', 'COMPLETED'
   };
 
   const handleRequestAction = async (requestId, status) => {
@@ -187,21 +198,40 @@ export default function Dashboard() {
                     <Link to={`/chat?partnerId=${m.user.id}`} className="btn btn-secondary" style={{ padding: '0.5rem 1rem' }}>
                       <MessageSquare size={16} /> Chat
                     </Link>
-                    <button 
-                      onClick={async () => {
-                        try {
-                          await api.requests.create(m.user.id);
-                          alert("Exchange request sent!");
-                          loadDashboardData();
-                        } catch (err) {
-                          alert(err.message);
-                        }
-                      }} 
-                      className="btn btn-primary" 
-                      style={{ padding: '0.5rem 1rem' }}
-                    >
-                      Connect
-                    </button>
+                    {(() => {
+                      const status = getConnectionStatus(m.user.id);
+                      if (status === 'PENDING') {
+                        return (
+                          <button className="btn btn-secondary" style={{ padding: '0.5rem 1rem' }} disabled>
+                            Requested
+                          </button>
+                        );
+                      }
+                      if (status === 'ACCEPTED') {
+                        return (
+                          <button className="btn btn-success" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }} disabled>
+                            ✓ Connected
+                          </button>
+                        );
+                      }
+                      return (
+                        <button 
+                          onClick={async () => {
+                            try {
+                              await api.requests.create(m.user.id);
+                              alert("Exchange request sent!");
+                              loadDashboardData();
+                            } catch (err) {
+                              alert(err.message);
+                            }
+                          }} 
+                          className="btn btn-primary" 
+                          style={{ padding: '0.5rem 1rem' }}
+                        >
+                          Connect
+                        </button>
+                      );
+                    })()}
                   </div>
                 </div>
               ))

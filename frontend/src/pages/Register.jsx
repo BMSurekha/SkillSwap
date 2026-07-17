@@ -20,6 +20,14 @@ export default function Register() {
     setError('');
     setSuccess('');
     setLoading(true);
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address.');
+      setLoading(false);
+      return;
+    }
+
     try {
       await register(email, password, fullName, bio, location);
       setSuccess('Account created successfully! Redirecting...');
