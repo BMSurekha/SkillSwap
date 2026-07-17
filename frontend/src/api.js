@@ -5,11 +5,11 @@
  * 2. High-fidelity LocalStorage Mock Database fallback when backend is offline.
  */
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = "https://skillswap-2-o4ls.onrender.com/api";
 let USE_MOCK_FALLBACK = true; // Set to true to force mock data, or false to use Spring Boot backend
 
 // Check if backend is available on startup, if yes, toggle mock off
-fetch('/api/users/skills/list')
+fetch(`${API_BASE_URL}/users/skills/list`)
   .then(res => {
     const contentType = res.headers.get('content-type');
     if (res.status === 200 && contentType && contentType.includes('application/json')) {
