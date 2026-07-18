@@ -89,14 +89,14 @@ const INITIAL_MOCK_DATA = {
 };
 
 const getMockDB = () => {
-  if (!localStorage.getItem('skillswap_db_v3')) {
-    localStorage.setItem('skillswap_db_v3', JSON.stringify(INITIAL_MOCK_DATA));
+  if (!localStorage.getItem('skillswap_db_v4')) {
+    localStorage.setItem('skillswap_db_v4', JSON.stringify(INITIAL_MOCK_DATA));
   }
-  return JSON.parse(localStorage.getItem('skillswap_db_v3'));
+  return JSON.parse(localStorage.getItem('skillswap_db_v4'));
 };
 
 const saveMockDB = (db) => {
-  localStorage.setItem('skillswap_db_v3', JSON.stringify(db));
+  localStorage.setItem('skillswap_db_v4', JSON.stringify(db));
 };
 
 // HTTP Request helper
