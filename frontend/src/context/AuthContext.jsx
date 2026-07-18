@@ -13,8 +13,10 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem('skillswap_token');
       if (savedUser && token) {
         try {
+          const parsed = JSON.parse(savedUser);
+          if (!parsed.id) throw new Error("No ID in session");
           await api.profile.get();
-          setUser(JSON.parse(savedUser));
+          setUser(parsed);
         } catch (e) {
           console.warn("Cached session invalid or user not found in DB. Clearing session.", e);
           localStorage.removeItem('skillswap_token');
@@ -62,7 +64,9 @@ export const AuthProvider = ({ children }) => {
       const profile = await api.profile.get();
       // Keep DTO fields
       const updatedUser = {
-        ...user,
+        id: profile.id || user?.id,
+        email: profile.email || user?.email,
+        role: profile.role || user?.role,
         fullName: profile.fullName,
         bio: profile.bio,
         location: profile.location,
