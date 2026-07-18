@@ -46,8 +46,8 @@ export default function Dashboard() {
 
   const getConnectionStatus = (targetUserId) => {
     const req = allRequests.find(q => 
-      (q.senderId === user.id && q.receiverId === targetUserId) ||
-      (q.senderId === targetUserId && q.receiverId === user.id)
+      (Number(q.senderId) === Number(user.id) && Number(q.receiverId) === Number(targetUserId)) ||
+      (Number(q.senderId) === Number(targetUserId) && Number(q.receiverId) === Number(user.id))
     );
     if (!req) return 'NONE';
     return req.status; // 'PENDING', 'ACCEPTED', 'REJECTED', 'COMPLETED'

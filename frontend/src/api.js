@@ -438,7 +438,7 @@ export const api = {
       const user = JSON.parse(localStorage.getItem('skillswap_user'));
       if (USE_MOCK_FALLBACK) {
         const db = getMockDB();
-        return db.requests.filter(r => r.senderId === user.id || r.receiverId === user.id);
+        return db.requests.filter(r => Number(r.senderId) === Number(user.id) || Number(r.receiverId) === Number(user.id));
       } else {
         return request(`${API_BASE_URL}/requests`);
       }
