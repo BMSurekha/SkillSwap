@@ -33,7 +33,7 @@ export default function Dashboard() {
       const reqData = await api.requests.get();
       const sessData = await api.sessions.getUpcoming();
       
-      setMatches(matchData.slice(0, 3)); // show top 3 matches
+      setMatches(matchData.slice(0, 10)); // show up to 10 matches
       setAllRequests(reqData);
       setRequests(reqData.filter(r => r.receiverId === user.id && r.status === 'PENDING'));
       setSessions(sessData.slice(0, 3));

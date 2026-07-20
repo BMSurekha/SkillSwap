@@ -384,19 +384,15 @@ export const api = {
             }
           });
 
-          // Rating Contribution
-          score += Math.round((u.averageRating / 5.0) * 15);
-          // Experience Contribution
-          score += Math.min(u.completedExchanges * 2, 20);
+          // Base score for new registered accounts so everyone is visible
+          const finalScore = Math.max(score, 15);
 
-          if (score > 10) {
-            results.push({
-              user: u,
-              compatibilityPercentage: Math.min(score, 100),
-              mutualSkills,
-              mutualCategories
-            });
-          }
+          results.push({
+            user: u,
+            compatibilityPercentage: Math.min(finalScore, 100),
+            mutualSkills,
+            mutualCategories
+          });
         }
         return results.sort((a, b) => b.compatibilityPercentage - a.compatibilityPercentage);
       } else {
