@@ -190,10 +190,13 @@ export const api = {
     forgotPassword: async (email) => {
       if (USE_MOCK_FALLBACK) {
         const db = getMockDB();
-        if (db.users.find(u => u.email === email)) {
-          return { message: `Account verified! Enter your new password below.` };
-        }
-        throw new Error("No account registered with this email.");
+        const user = db.users.find(u => u.email === email);
+        if (!user) throw new Error("No account registered with this email.");
+
+        // Generate mock 6-digit OTP
+        const mockOtp = "123456";
+        sessionStorage.setItem(`otp_${email}`, mockOtp);
+        return { message: `[DEMO MOCK EMAIL] OTP code sent to ${email}. (Your Demo OTP is: 123456)` };
       } else {
         return request(`${API_BASE_URL}/auth/forgot-password`, {
           method: 'POST',
@@ -202,18 +205,34 @@ export const api = {
       }
     },
 
-    resetPassword: async (email, newPassword) => {
+    verifyOtp: async (email, otp) => {
+      if (USE_MOCK_FALLBACK) {
+        const savedOtp = sessionStorage.getItem(`otp_${email}`) || "123456";
+        if (otp.trim() === savedOtp || otp.trim() === "123456") {
+          return { message: "OTP code verified successfully!" };
+        }
+        throw new Error("Invalid OTP code. For Demo/Mock mode, enter 123456.");
+      } else {
+        return request(`${API_BASE_URL}/auth/verify-otp`, {
+          method: 'POST',
+          body: JSON.stringify({ email, otp })
+        });
+      }
+    },
+
+    resetPassword: async (email, otp, newPassword) => {
       if (USE_MOCK_FALLBACK) {
         const db = getMockDB();
         const user = db.users.find(u => u.email === email);
         if (!user) throw new Error("Account not found");
         user.password = newPassword;
         saveMockDB(db);
+        sessionStorage.removeItem(`otp_${email}`);
         return { message: "Password updated successfully!" };
       } else {
         return request(`${API_BASE_URL}/auth/reset-password`, {
           method: 'POST',
-          body: JSON.stringify({ email, newPassword })
+          body: JSON.stringify({ email, otp, newPassword })
         });
       }
     }
