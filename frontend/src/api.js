@@ -193,10 +193,9 @@ export const api = {
         const user = db.users.find(u => u.email === email);
         if (!user) throw new Error("No account registered with this email.");
 
-        // Generate mock 6-digit OTP
-        const mockOtp = "123456";
-        sessionStorage.setItem(`otp_${email}`, mockOtp);
-        return { message: `[DEMO MOCK EMAIL] OTP code sent to ${email}. (Your Demo OTP is: 123456)` };
+        const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+        sessionStorage.setItem(`otp_${email}`, generatedOtp);
+        return { message: `A 6-digit OTP verification code has been sent to ${email}.` };
       } else {
         return request(`${API_BASE_URL}/auth/forgot-password`, {
           method: 'POST',
@@ -207,11 +206,11 @@ export const api = {
 
     verifyOtp: async (email, otp) => {
       if (USE_MOCK_FALLBACK) {
-        const savedOtp = sessionStorage.getItem(`otp_${email}`) || "123456";
-        if (otp.trim() === savedOtp || otp.trim() === "123456") {
+        const savedOtp = sessionStorage.getItem(`otp_${email}`);
+        if (savedOtp && otp.trim() === savedOtp) {
           return { message: "OTP code verified successfully!" };
         }
-        throw new Error("Invalid OTP code. For Demo/Mock mode, enter 123456.");
+        throw new Error("Invalid OTP code. Please check your email and try again.");
       } else {
         return request(`${API_BASE_URL}/auth/verify-otp`, {
           method: 'POST',
