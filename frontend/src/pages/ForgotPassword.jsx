@@ -18,10 +18,10 @@ export default function ForgotPassword() {
     setLoading(true);
     try {
       const res = await api.auth.forgotPassword(email);
-      setMessage(res.message || 'Reset code sent to your email.');
+      setMessage(res.message || 'Email verified! Enter your new password below.');
       setStep(2);
     } catch (err) {
-      setError(err.message || 'Email not found.');
+      setError(err.message || 'No account registered with this email.');
     } finally {
       setLoading(false);
     }
@@ -64,7 +64,7 @@ export default function ForgotPassword() {
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>Reset Password</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
-            {step === 1 ? 'Get a recovery link for your account' : 'Enter your new secure password'}
+            {step === 1 ? 'Enter your registered email address' : 'Enter your new secure password'}
           </p>
         </div>
 
@@ -123,7 +123,7 @@ export default function ForgotPassword() {
               disabled={loading}
               style={{ width: '100%', padding: '0.85rem' }}
             >
-              {loading ? 'Sending...' : 'Send Recovery Link'}
+              {loading ? 'Verifying...' : 'Verify Email & Reset'}
             </button>
           </form>
         ) : (

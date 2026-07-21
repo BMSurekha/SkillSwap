@@ -5,7 +5,7 @@
  * 2. High-fidelity LocalStorage Mock Database fallback when backend is offline.
  */
 
-const API_BASE_URL = "https://skillswap-2-o4ls.onrender.com/api";
+const API_BASE_URL = "https://YOUR-EXACT-RENDER-URL.onrender.com/api";
 let USE_MOCK_FALLBACK = true; // Set to true to force mock data, or false to use Spring Boot backend
 
 // Check if backend is available on startup, if yes, toggle mock off
@@ -191,9 +191,9 @@ export const api = {
       if (USE_MOCK_FALLBACK) {
         const db = getMockDB();
         if (db.users.find(u => u.email === email)) {
-          return { message: `Password reset link sent to ${email}` };
+          return { message: `Account verified! Enter your new password below.` };
         }
-        throw new Error("Email not found");
+        throw new Error("No account registered with this email.");
       } else {
         return request(`${API_BASE_URL}/auth/forgot-password`, {
           method: 'POST',
@@ -204,7 +204,12 @@ export const api = {
 
     resetPassword: async (email, newPassword) => {
       if (USE_MOCK_FALLBACK) {
-        return { message: "Password reset successfully!" };
+        const db = getMockDB();
+        const user = db.users.find(u => u.email === email);
+        if (!user) throw new Error("Account not found");
+        user.password = newPassword;
+        saveMockDB(db);
+        return { message: "Password updated successfully!" };
       } else {
         return request(`${API_BASE_URL}/auth/reset-password`, {
           method: 'POST',

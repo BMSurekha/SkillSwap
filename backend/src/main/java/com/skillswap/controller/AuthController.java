@@ -78,8 +78,7 @@ public class AuthController {
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
         String email = request.get("email");
         if (userRepository.existsByEmail(email)) {
-            // In a real application, you would generate a token and send an email
-            return ResponseEntity.ok(Map.of("message", "Reset link sent to " + email));
+            return ResponseEntity.ok(Map.of("message", "Account verified! Enter your new password below."));
         }
         return ResponseEntity.badRequest().body(Map.of("error", "No account registered with this email."));
     }
