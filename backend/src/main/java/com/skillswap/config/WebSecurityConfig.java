@@ -42,8 +42,10 @@ public class WebSecurityConfig {
         http
             .csrf(csrf -> csrf.disable()) // Disable CSRF as we use JWT
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll() // Authenticate routes
-                .requestMatchers("/h2-console/**").permitAll() // H2 Console
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/users/skills/list").permitAll()
+                .requestMatchers("/api/users/categories/list").permitAll()
+                .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/error").permitAll()
                 .anyRequest().authenticated()
             )
